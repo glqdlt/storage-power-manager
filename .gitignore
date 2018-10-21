@@ -27,3 +27,5 @@
 .mvn
 mvnw
 mvnw.cmd
+power-config-prod.properties
+application-prod.properties

@@ -23,15 +23,13 @@ public class DefaultMyPowerManager implements PowerManager {
         this.wakeOnLanExecutor = wakeOnLanExecutor;
     }
 
-    public DefaultMyPowerManager() {
-    }
 
     private void execute(ShutdownCommander command, Integer timer) {
         try {
             java.util.Properties config = new java.util.Properties();
             config.put("StrictHostKeyChecking", "no");
             JSch jsch = new JSch();
-            Session session = jsch.getSession(this.powerManagerSetting.getId(), this.powerManagerSetting.getHost(), this.powerManagerSetting.getPort());
+            Session session = jsch.getSession(this.powerManagerSetting.getId(), this.powerManagerSetting.getHost(), this.powerManagerSetting.getSshPort());
             session.setPassword(this.powerManagerSetting.getPassword());
             session.setConfig(config);
             session.connect();
@@ -72,7 +70,7 @@ public class DefaultMyPowerManager implements PowerManager {
     @Override
     public void startUp() {
         try {
-            this.wakeOnLanExecutor.execute(String.valueOf(this.powerManagerSetting.getPort()), this.powerManagerSetting.getHost(), this.powerManagerSetting.getMac());
+            this.wakeOnLanExecutor.execute(String.valueOf(this.powerManagerSetting.getWolPort()), this.powerManagerSetting.getBroadCast(), this.powerManagerSetting.getMac());
         } catch (RuntimeException e) {
             log.error(e.getLocalizedMessage(), e);
         }

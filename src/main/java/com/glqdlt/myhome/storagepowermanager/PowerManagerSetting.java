@@ -10,7 +10,9 @@ import lombok.ToString;
 public class PowerManagerSetting {
 
     private String host;
-    private Integer port;
+    private Integer wolPort;
+    private Integer sshPort;
+    private String broadCast;
     private String id;
     private String password;
     private String rootPassword;

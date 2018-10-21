@@ -4,16 +4,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.*;
 
+@ActiveProfiles("prod")
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class DefaultMyPowerManagerTest {
 
     @Autowired
-    PowerManager powerManager;
+    DefaultMyPowerManager defaultMyPowerManager;
 
     @Test
     public void contrust() {
@@ -22,19 +24,19 @@ public class DefaultMyPowerManagerTest {
     @Test
     public void startUp() {
 
-        powerManager.startUp();
+        defaultMyPowerManager.startUp();
 
     }
 
     @Test
     public void shutdown() {
 
-        powerManager.shutdown();
+        defaultMyPowerManager.shutdown(0);
     }
 
     @Test
     public void reBoot() {
 
-        powerManager.reBoot();
+        defaultMyPowerManager.reBoot(0);
     }
 }
