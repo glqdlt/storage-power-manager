@@ -8,6 +8,9 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 @Slf4j
@@ -38,15 +41,24 @@ public class DefaultMyPowerManager implements PowerManager {
 
             Channel channel = session.openChannel("exec");
             ((ChannelExec) channel).setPty(true);
-            ((ChannelExec) channel).setCommand("sudo -S -p '' " + command.getCommand() + timer);
+            String cmd = "sudo -S -p '' " + command.getCommand() + timer;
+            log.debug("command :  {}",cmd);
+            ((ChannelExec) channel).setCommand(cmd);
             channel.setInputStream(null);
             ((ChannelExec) channel).setErrStream(System.err);
 
-            try (OutputStream outputStream = channel.getOutputStream()) {
+            try (InputStream in = channel.getInputStream(); OutputStream outputStream = channel.getOutputStream()) {
 
                 channel.connect();
                 outputStream.write((this.powerManagerSetting.getRootPassword() + "\n").getBytes());
                 outputStream.flush();
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    log.debug(line);
+                }
 
             } finally {
                 channel.disconnect();
