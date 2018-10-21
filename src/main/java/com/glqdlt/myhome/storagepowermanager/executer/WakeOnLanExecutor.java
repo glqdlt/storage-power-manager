@@ -27,7 +27,7 @@ public class WakeOnLanExecutor {
             socket = new DatagramSocket();
             socket.send(packet);
 
-            log.info("Send packet.");
+            log.debug("Send packet.");
         } catch (Exception e) {
             log.error("Some Exception", e);
             throw new RuntimeException();

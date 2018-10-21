@@ -1,15 +1,13 @@
 package com.glqdlt.myhome.storagepowermanager;
 
 import com.glqdlt.myhome.storagepowermanager.executer.ShutdownCommander;
+import com.glqdlt.myhome.storagepowermanager.executer.WakeOnLanExecutor;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 @Slf4j
@@ -17,15 +15,18 @@ public class DefaultMyPowerManager implements PowerManager {
 
     private PowerManagerSetting powerManagerSetting;
 
+    private WakeOnLanExecutor wakeOnLanExecutor;
 
-    public DefaultMyPowerManager(PowerManagerSetting powerManagerSetting) {
+
+    public DefaultMyPowerManager(PowerManagerSetting powerManagerSetting, WakeOnLanExecutor wakeOnLanExecutor) {
         this.powerManagerSetting = powerManagerSetting;
+        this.wakeOnLanExecutor = wakeOnLanExecutor;
     }
 
     public DefaultMyPowerManager() {
     }
 
-    private void execute(ShutdownCommander command, Integer timer){
+    private void execute(ShutdownCommander command, Integer timer) {
         try {
             java.util.Properties config = new java.util.Properties();
             config.put("StrictHostKeyChecking", "no");
@@ -43,14 +44,12 @@ public class DefaultMyPowerManager implements PowerManager {
             channel.setInputStream(null);
             ((ChannelExec) channel).setErrStream(System.err);
 
-            try (InputStream in = channel.getInputStream();
-                 OutputStream outputStream = channel.getOutputStream()) {
+            try (OutputStream outputStream = channel.getOutputStream()) {
 
                 channel.connect();
                 outputStream.write((this.powerManagerSetting.getRootPassword() + "\n").getBytes());
                 outputStream.flush();
 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             } finally {
                 channel.disconnect();
                 session.disconnect();
@@ -66,17 +65,21 @@ public class DefaultMyPowerManager implements PowerManager {
     @Override
     public void shutdown(Integer timer) {
 
-        execute(ShutdownCommander.SHUTDOWN,timer);
+        execute(ShutdownCommander.SHUTDOWN, timer);
 
     }
 
     @Override
     public void startUp() {
-
+        try {
+            this.wakeOnLanExecutor.execute(String.valueOf(this.powerManagerSetting.getPort()), this.powerManagerSetting.getHost(), this.powerManagerSetting.getMac());
+        } catch (RuntimeException e) {
+            log.error(e.getLocalizedMessage(), e);
+        }
     }
 
     @Override
     public void reBoot(Integer timer) {
-        execute(ShutdownCommander.RESTART,timer);
+        execute(ShutdownCommander.RESTART, timer);
     }
 }
