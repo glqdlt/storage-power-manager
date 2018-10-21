@@ -3,11 +3,10 @@ package com.glqdlt.myhome.storagepowermanager;
 import org.springframework.stereotype.Component;
 
 public interface PowerManager {
-
-    void shutdown();
+    void shutdown(Integer timer);
 
     void startUp();
 
-    void reBoot();
+    void reBoot(Integer timer);
 
 }
